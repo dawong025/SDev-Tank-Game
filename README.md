@@ -1,5 +1,5 @@
 # CSC 413 Term Project README
 
-Name:
+Name: Darren Wong
 
-Email:
+Email: dwong19@mail.sfsu.edu

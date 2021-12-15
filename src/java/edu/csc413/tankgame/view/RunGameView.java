@@ -65,10 +65,10 @@ public class RunGameView extends JPanel {
     public void addSprite(
             String id, String entityImageFile, double initialX, double initialY, double initialAngle) {
         synchronized (spritesById) {
-            if (spritesById.containsKey(id)) {
+            /*if (spritesById.containsKey(id)) {
                 throw new RuntimeException(
                         "A sprite with id '" + id + "' already exists. Use setSpriteLocationAndAngle instead.");
-            }
+            }[TODO] uncomment */
             Sprite sprite = new Sprite(entityImageFile);
             sprite.setLocationAndAngle(initialX, initialY, initialAngle);
             spritesById.put(id, sprite);
