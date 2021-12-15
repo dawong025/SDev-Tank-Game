@@ -3,7 +3,7 @@ import edu.csc413.tankgame.Constants;
 
 //[TODO] CHANGE BACK TO ABSTRACT
 public abstract class Tank extends Entity {
-    protected static int INITIAL_SHELL_COOLDOWN = 50;
+    protected static int INITIAL_SHELL_COOLDOWN = 100;
     public Tank(String id, double x, double y, double angle) {
         super(id, x, y, angle);
     }
