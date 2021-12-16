@@ -114,6 +114,10 @@ public class GameDriver {
         for(Entity entity: gameWorld.getEntities()){
             runGameView.setSpriteLocationAndAngle(entity.getId(), entity.getX(), entity.getY(), entity.getAngle());
         }
+        for(Entity entity: gameWorld.getEntitiesToRemove()){
+            runGameView.removeSprite(entity.getId());
+        }
+        gameWorld.moveEntitiesToRemove();
         return true;
     }
     private boolean areEntitiesColliding(Entity entityA, Entity entityB){

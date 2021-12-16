@@ -32,6 +32,15 @@ public abstract class Entity {
     public double getAngle() {
         return angle;
     }
+    public void setX(double newX){
+        x = newX;
+    }
+    public void setY(double newY){
+        y = newY;
+    }
+    public void setAngle(double newAngle){
+        angle = newAngle;
+    }
 
     protected void moveForward(double movementSpeed) {
         x += movementSpeed * Math.cos(angle);

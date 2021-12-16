@@ -1,7 +1,6 @@
 package edu.csc413.tankgame.model;
 import edu.csc413.tankgame.Constants;
 
-//[TODO] CHANGE BACK TO ABSTRACT
 public abstract class Tank extends Entity {
     protected static int INITIAL_SHELL_COOLDOWN = 100;
     public Tank(String id, double x, double y, double angle) {
@@ -11,6 +10,18 @@ public abstract class Tank extends Entity {
     @Override
     public void checkBounds(GameWorld gameWorld){
         //if tank's x < minimum x, do something
+        if(getX() < Constants.TANK_X_LOWER_BOUND){
+            setX(Constants.TANK_X_LOWER_BOUND);
+        }
+        if(getX() > Constants.TANK_X_UPPER_BOUND){
+            setX(Constants.TANK_X_UPPER_BOUND);
+        }
+        if(getY() < Constants.TANK_Y_LOWER_BOUND){
+            setY(Constants.TANK_Y_LOWER_BOUND);
+        }
+        if(getY() > Constants.TANK_Y_UPPER_BOUND){
+            setY(Constants.TANK_Y_UPPER_BOUND);
+        }
     }
 
     // You can use getShellX() and getShellY() to determine the x and y coordinates of a Shell that

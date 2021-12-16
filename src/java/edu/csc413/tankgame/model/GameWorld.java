@@ -13,6 +13,7 @@ public class GameWorld {
     //       Add whatever instance variables, constructors, and methods are needed.
     private ArrayList<Entity> entities;
     private ArrayList<Entity> entitiesToAdd;
+    private ArrayList<Entity> entitiesToRemove;
 
     KeyboardReader keyboardReader = KeyboardReader.instance();
 
@@ -20,6 +21,7 @@ public class GameWorld {
         // TODO: Implement.
         entities = new ArrayList<>();
         entitiesToAdd = new ArrayList<>();
+        entitiesToRemove = new ArrayList<>();
     }
 
     /** Returns a list of all entities in the game. */
@@ -32,9 +34,18 @@ public class GameWorld {
         return entitiesToAdd;
     }
 
+    public List<Entity> getEntitiesToRemove(){
+        return entitiesToRemove;
+    }
+
     public void moveEntitiesToAdd(){
         entities.addAll(entitiesToAdd);
         entitiesToAdd.clear();
+    }
+
+    public void moveEntitiesToRemove(){
+        entities.removeAll(entitiesToRemove);
+        entitiesToRemove.clear();
     }
 
     /** Adds a new entity to the game. */
@@ -58,11 +69,12 @@ public class GameWorld {
     /** Removes the entity with the specified ID from the game. */
     public void removeEntity(String id) {
         // TODO: Implement. [DONE]
-        for(Entity entity: entities) {
-            if (entity.getId().equals(id)) {
-                entities.remove(entity);
+        for(Entity entity: entities){
+            if(entity.getId().equals(id)){
+                entitiesToRemove.add(entity);
             }
         }
+
     }
     //Keyboard reader -> GameWorld
     public boolean upKeyPressed (){
