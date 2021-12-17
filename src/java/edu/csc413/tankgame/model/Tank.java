@@ -3,8 +3,9 @@ import edu.csc413.tankgame.Constants;
 
 public abstract class Tank extends Entity {
     protected static int INITIAL_SHELL_COOLDOWN = 100;
-    public Tank(String id, double x, double y, double angle) {
-        super(id, x, y, angle);
+    public Tank(String id, double x, double y, double angle, int lives) {
+        super(id, x, y, angle, lives);
+
     }
 
     @Override
@@ -22,6 +23,15 @@ public abstract class Tank extends Entity {
         if(getY() > Constants.TANK_Y_UPPER_BOUND){
             setY(Constants.TANK_Y_UPPER_BOUND);
         }
+    }
+
+    @Override
+    public double getXBound(){
+        return getX() + Constants.TANK_WIDTH;
+    }
+    @Override
+    public double getYBound(){
+        return getY() + Constants.TANK_HEIGHT;
     }
 
     // You can use getShellX() and getShellY() to determine the x and y coordinates of a Shell that

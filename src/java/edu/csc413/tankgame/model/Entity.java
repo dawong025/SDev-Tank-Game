@@ -9,12 +9,14 @@ public abstract class Entity {
     private double x;
     private double y;
     private double angle;
+    private int lives;
 
-    public Entity(String id, double x, double y, double angle) {
+    public Entity(String id, double x, double y, double angle, int lives) {
         this.id = id;
         this.x = x;
         this.y = y;
         this.angle = angle;
+        this.lives = lives;
     }
 
     public String getId() {
@@ -32,6 +34,9 @@ public abstract class Entity {
     public double getAngle() {
         return angle;
     }
+    public int getLives(){
+        return lives;
+    }
     public void setX(double newX){
         x = newX;
     }
@@ -41,7 +46,9 @@ public abstract class Entity {
     public void setAngle(double newAngle){
         angle = newAngle;
     }
-
+    public void setLives(int newLives){
+        lives = newLives;
+    }
     protected void moveForward(double movementSpeed) {
         x += movementSpeed * Math.cos(angle);
         y += movementSpeed * Math.sin(angle);
@@ -59,6 +66,10 @@ public abstract class Entity {
     protected void turnRight(double turnSpeed) {
         angle += turnSpeed;
     }
+
+    /** All entities have a X and Y bounds, even if the details of their bounds are based on the specific type of Entity**/
+    public abstract double getXBound();
+    public abstract double getYBound();
 
     /** All entities can move, even if the details of their move logic may vary based on the specific type of Entity. */
     public abstract void move(GameWorld gameWorld);

@@ -92,4 +92,7 @@ public class GameWorld {
     public boolean spaceBarPressed(){
         return keyboardReader.spacePressed();
     }
+    public boolean escapeKeyPressed(){
+        return keyboardReader.escapePressed();
+    }
 }

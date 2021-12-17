@@ -4,8 +4,8 @@ import edu.csc413.tankgame.Constants;
 
 public class aiTank extends Tank{ //gameworld AI tank
     private int shellCooldown;
-    public aiTank (String id, double x, double y, double angle){
-        super(id, x, y, angle);
+    public aiTank (String id, double x, double y, double angle, int lives){
+        super(id, x, y, angle, lives);
         shellCooldown = INITIAL_SHELL_COOLDOWN;
     }
     @Override
@@ -44,7 +44,7 @@ public class aiTank extends Tank{ //gameworld AI tank
     }
     protected void fireShell(GameWorld gameWorld){
         if(shellCooldown == 0) {
-            Shell newShell = new Shell(getShellX(), getShellY(), getAngle());
+            Shell newShell = new Shell(getShellX(), getShellY(), getAngle(),1);
             gameWorld.addEntity(newShell);
             shellCooldown = INITIAL_SHELL_COOLDOWN;
         }
