@@ -5,7 +5,6 @@ public abstract class Tank extends Entity {
     protected static int INITIAL_SHELL_COOLDOWN = 100;
     public Tank(String id, double x, double y, double angle, int lives) {
         super(id, x, y, angle, lives);
-
     }
 
     @Override
@@ -43,5 +42,9 @@ public abstract class Tank extends Entity {
 
     protected double getShellY() {
         return getY() + Constants.TANK_HEIGHT / 2 + 45.0 * Math.sin(getAngle()) - Constants.SHELL_HEIGHT / 2;
+    }
+    public void setShellCooldown (int newCooldown){
+        //for future functionality
+        //for now functionality is limited to playerTank
     }
 }

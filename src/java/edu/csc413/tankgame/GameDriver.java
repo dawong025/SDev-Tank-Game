@@ -11,8 +11,15 @@ public class GameDriver {
     private final RunGameView runGameView;
     private final GameWorld gameWorld;
 
-    private boolean wonGame = false;
+    private Tank playerTank;
+    private Tank aiTank;
+    private Tank movableAiTank;
+    private PowerUp reduceShellTimer;
+    private Heart heart;
+
     private boolean lostGame = false;
+    private boolean aiTankGone = false;
+    private boolean movableAiTankGone = false;
 
     public GameDriver() {
         mainView = new MainView(this::startMenuActionPerformed);
@@ -43,15 +50,14 @@ public class GameDriver {
                 } catch (InterruptedException exception) {
                     throw new RuntimeException(exception);
                 }
-                if(gameWorld.escapeKeyPressed()){ //break out of loop if escape is pressed
+                if (gameWorld.escapeKeyPressed()) { //break out of loop if escape is pressed
                     break;
-                }
-                else if(lostGame){
+                } else if (lostGame) {
                     System.out.println("The player has been eliminated.");
                     break;
-                }
-                else if(wonGame){
-                    System.out.println("The player has won");
+                } else if (checkWin()) {
+                    System.out.println("The player has won!");
+                    break;
                 }
             }
             mainView.setScreen(MainView.Screen.END_MENU_SCREEN);
@@ -66,27 +72,48 @@ public class GameDriver {
      */
     private void setUpGame() {
         // TODO: Implement.
-        Tank playerTank = new playerTank(
+        playerTank = new playerTank(
                 Constants.PLAYER_TANK_ID,
                 Constants.PLAYER_TANK_INITIAL_X,
                 Constants.PLAYER_TANK_INITIAL_Y,
                 Constants.PLAYER_TANK_INITIAL_ANGLE,
                 3
         );
-        Tank aiTank = new aiTank (
+        aiTank = new aiTank(
                 Constants.AI_TANK_1_ID,
                 Constants.AI_TANK_1_INITIAL_X,
                 Constants.AI_TANK_1_INITIAL_Y,
                 Constants.AI_TANK_1_INITIAL_ANGLE,
                 3
         );
+        movableAiTank = new movableAiTank(
+                Constants.AI_TANK_2_ID,
+                Constants.AI_TANK_2_INITIAL_X,
+                Constants.AI_TANK_2_INITIAL_Y,
+                Constants.AI_TANK_2_INITIAL_ANGLE,
+                2
+        );
+        reduceShellTimer = new PowerUp(
+                "red-shell-timer",
+                Constants.POWERUP_INITIAL_X,
+                Constants.POWERUP_INITIAL_Y,
+                Constants.POWERUP_INITIAL_ANGLE,
+                0
+        );
+        heart = new Heart(
+                "heart",
+                Constants.HEART_INITIAL_X,
+                Constants.HEART_INITIAL_Y,
+                Constants.HEART_INITIAL_ANGLE,
+                0
+        );
 
         int id = 0;
         List<WallInformation> wallInfos = WallInformation.readWalls();
-        for(WallInformation wallInfo: wallInfos){
+        for (WallInformation wallInfo : wallInfos) {
             //Create a Wall Entity, add it to gameWorld
-            String updatedId = "wall-"+id++;
-            Wall wall = new Wall (updatedId, wallInfo.getX(), wallInfo.getY(), 0.0, 3);
+            String updatedId = "wall-" + id++;
+            Wall wall = new Wall(updatedId, wallInfo.getX(), wallInfo.getY(), 0.0, 3);
             gameWorld.addEntity(wall);
             runGameView.addSprite(
                     updatedId, wallInfo.getImageFile(), wallInfo.getX(), wallInfo.getY(), 0.0);
@@ -94,6 +121,9 @@ public class GameDriver {
 
         gameWorld.addEntity(playerTank);
         gameWorld.addEntity(aiTank);
+        gameWorld.addEntity(movableAiTank);
+        gameWorld.addEntity(reduceShellTimer);
+        gameWorld.addEntity(heart);
         //for all wallInformation
         gameWorld.moveEntitiesToAdd();
 
@@ -107,7 +137,21 @@ public class GameDriver {
                 aiTank.getX(),
                 aiTank.getY(),
                 aiTank.getAngle());
-
+        runGameView.addSprite(movableAiTank.getId(),
+                RunGameView.AI_TANK_IMAGE_FILE,
+                movableAiTank.getX(),
+                movableAiTank.getY(),
+                movableAiTank.getAngle());
+        runGameView.addSprite(reduceShellTimer.getId(),
+                RunGameView.POWERUP_IMAGE_FILE,
+                reduceShellTimer.getX(),
+                reduceShellTimer.getY(),
+                reduceShellTimer.getAngle());
+        runGameView.addSprite(heart.getId(),
+                RunGameView.HEART_IMAGE_FILE,
+                heart.getX(),
+                heart.getY(),
+                heart.getAngle());
     }
 
     /**
@@ -117,35 +161,36 @@ public class GameDriver {
      */
     private boolean updateGame() {
         // TODO: Implement.
-        for(Entity entity: gameWorld.getEntities()){
+        for (Entity entity : gameWorld.getEntities()) {
             entity.move(gameWorld);
             entity.checkBounds(gameWorld);
         }
         //A bunch of other things like collision detection, bounce checking, etc
-        for(int i = 0; i < gameWorld.getEntities().size(); i++){
-            for(int j = i + 1; j < gameWorld.getEntities().size(); j++){
+        for (int i = 0; i < gameWorld.getEntities().size(); i++) {
+            for (int j = i + 1; j < gameWorld.getEntities().size(); j++) {
                 handleCollision(gameWorld.getEntities().get(i), gameWorld.getEntities().get(j));
                 //System.out.println("Handing collision between"+gameWorld.getEntities().get(i).getId()+" "+gameWorld.getEntities().get(j).getId());
             }
         }
 
-        for(Entity entity: gameWorld.getEntitiesToAdd()){
+        for (Entity entity : gameWorld.getEntitiesToAdd()) {
             runGameView.addSprite(
-                    entity.getId(), RunGameView.SHELL_IMAGE_FILE,entity.getX(), entity.getY(), entity.getAngle());
+                    entity.getId(), RunGameView.SHELL_IMAGE_FILE, entity.getX(), entity.getY(), entity.getAngle());
         }
         gameWorld.moveEntitiesToAdd();
 
-        for(Entity entity: gameWorld.getEntities()){
+        for (Entity entity : gameWorld.getEntities()) {
             runGameView.setSpriteLocationAndAngle(entity.getId(), entity.getX(), entity.getY(), entity.getAngle());
         }
 
-        for(Entity entity: gameWorld.getEntitiesToRemove()){
+        for (Entity entity : gameWorld.getEntitiesToRemove()) {
             runGameView.removeSprite(entity.getId());
         }
         gameWorld.moveEntitiesToRemove();
         return true;
     }
-    private boolean areEntitiesColliding(Entity entityA, Entity entityB){
+
+    private boolean areEntitiesColliding(Entity entityA, Entity entityB) {
         //return true if both entities are colliding, false otherwise
         boolean x1ToX2Bound = entityA.getX() < entityB.getXBound();
         boolean x1BoundToX2 = entityA.getXBound() > entityB.getX();
@@ -155,10 +200,71 @@ public class GameDriver {
         //All conditions must be true in order for two entities to collide
         return x1ToX2Bound && x1BoundToX2 && y1ToY2Bound && y1BoundToY2;
     }
-    private void handleCollision(Entity entityA, Entity entityB){
-            if (entityA instanceof Tank && entityB instanceof Tank) {
-                if(areEntitiesColliding(entityA, entityB)) {
-                    //Four Possible Scenarios (In reference to Tank A movement)
+
+    private void handleCollision(Entity entityA, Entity entityB) {
+        if (entityA instanceof Tank && entityB instanceof Tank) {
+            if (areEntitiesColliding(entityA, entityB)) {
+                //Four Possible Scenarios (In reference to Tank A movement)
+                double moveLeft = entityA.getXBound() - entityB.getX();
+                double moveRight = entityB.getXBound() - entityA.getX();
+                double moveUp = entityA.getYBound() - entityB.getY();
+                double moveDown = entityB.getYBound() - entityA.getY();
+
+                //Create a temp array to sort out values, then sort
+                double[] move = {moveLeft, moveRight, moveUp, moveDown};
+                double minimum = move[0];
+
+                for (int i = 0; i < move.length; i++) {
+                    if (move[i] < minimum) {
+                        minimum = move[i];
+                    }
+                }
+                //minimum cases
+                if (minimum == moveLeft) {
+                    entityA.setX(entityA.getX() - minimum / 2);
+                    entityB.setX(entityB.getX() + minimum / 2);
+                } else if (minimum == moveRight) {
+                    entityA.setX(entityA.getX() + minimum / 2);
+                    entityB.setX(entityB.getX() - minimum / 2);
+                } else if (minimum == moveUp) {
+                    entityA.setY(entityA.getY() - minimum / 2); //where - means going up
+                    entityB.setY(entityB.getY() + minimum / 2);
+                } else if (minimum == moveDown) {
+                    entityA.setY(entityA.getY() + minimum / 2); //where + means going down
+                    entityB.setY(entityB.getY() - minimum / 2);
+                }
+            }
+        } else if (entityA instanceof Shell && entityB instanceof Shell) {
+            if (areEntitiesColliding(entityA, entityB)) {
+                //both shells should be removed
+                entityA.setLives(0);
+                gameWorld.removeEntity(entityA.getId());
+                entityB.setLives(0);
+                gameWorld.removeEntity(entityB.getId());
+            }
+        } else if (entityA instanceof Tank && entityB instanceof Shell) {
+            if (areEntitiesColliding(entityA, entityB)) {
+                entityA.setLives(entityA.getLives() - 1);
+                if (entityA.getLives() == 0 && entityA.getId() == Constants.PLAYER_TANK_ID) {
+                    gameWorld.removeEntity(entityA.getId());
+                    lostGame = true;
+                } else if (entityA.getLives() == 0 && entityA.getId() == Constants.AI_TANK_1_ID) {
+                    gameWorld.removeEntity(entityA.getId());
+                    aiTankGone = true;
+                } else if (entityA.getLives() == 0 && entityA.getId() == Constants.AI_TANK_2_ID) {
+                    gameWorld.removeEntity(entityA.getId());
+                    movableAiTankGone = true;
+                }
+
+                entityB.setLives(0);
+                gameWorld.removeEntity(entityB.getId()); //get rid of shell
+
+            }
+        } else if (entityA instanceof Tank && entityB instanceof Wall ||
+                entityA instanceof Wall && entityB instanceof Tank) {
+            //second case most likely to happen based on loop order
+            if (areEntitiesColliding(entityA, entityB)) {
+                if (entityA instanceof Tank && entityB instanceof Wall) {
                     double moveLeft = entityA.getXBound() - entityB.getX();
                     double moveRight = entityB.getXBound() - entityA.getX();
                     double moveUp = entityA.getYBound() - entityB.getY();
@@ -175,54 +281,20 @@ public class GameDriver {
                     }
                     //minimum cases
                     if (minimum == moveLeft) {
-                        entityA.setX(entityA.getX() - minimum / 2);
-                        entityB.setX(entityB.getX() + minimum / 2);
+                        entityA.setX(entityA.getX() - minimum);
                     } else if (minimum == moveRight) {
-                        entityA.setX(entityA.getX() + minimum / 2);
-                        entityB.setX(entityB.getX() - minimum / 2);
+                        entityA.setX(entityA.getX() + minimum);
                     } else if (minimum == moveUp) {
-                        entityA.setY(entityA.getY() - minimum / 2); //where - means going up
-                        entityB.setY(entityB.getY() + minimum / 2);
+                        entityA.setY(entityA.getY() - minimum); //where - means going up
                     } else if (minimum == moveDown) {
-                        entityA.setY(entityA.getY() + minimum / 2); //where + means going down
-                        entityB.setY(entityB.getY() - minimum / 2);
+                        entityA.setY(entityA.getY() + minimum); //where + means going down
                     }
-                }
-            }
-            else if (entityA instanceof Shell && entityB instanceof Shell) {
-                if(areEntitiesColliding(entityA, entityB)) {
-                    //both shells should be removed
-                    entityA.setLives(0);
-                    gameWorld.removeEntity(entityA.getId());
-                    entityB.setLives(0);
-                    gameWorld.removeEntity(entityB.getId());
-                }
-            }
-            else if (entityA instanceof Tank && entityB instanceof Shell) {
-                if(areEntitiesColliding(entityA, entityB)){
-                    entityA.setLives(entityA.getLives() - 1);
-                    if(entityA.getLives() == 0 && entityA.getId() == "player-tank") {
-                        gameWorld.removeEntity(entityA.getId());
-                        lostGame = true;
-                    }
-                    else if(entityA.getLives () == 0){
-                        gameWorld.removeEntity(entityA.getId());
-                    }
-
-                    entityB.setLives(0);
-                    gameWorld.removeEntity(entityB.getId()); //get rid of shell
-
-                }
-            }
-            else if (entityA instanceof Tank && entityB instanceof Wall ||
-                    entityA instanceof Wall && entityB instanceof Tank) {
-                    //second case most likely to happen based on loop order
-                if(areEntitiesColliding(entityA, entityB)) {
-                    if (entityA instanceof Tank && entityB instanceof Wall) {
-                        double moveLeft = entityA.getXBound() - entityB.getX();
-                        double moveRight = entityB.getXBound() - entityA.getX();
-                        double moveUp = entityA.getYBound() - entityB.getY();
-                        double moveDown = entityB.getYBound() - entityA.getY();
+                } else {
+                    if (entityA instanceof Wall && entityB instanceof Tank) {
+                        double moveLeft = entityB.getXBound() - entityA.getX();
+                        double moveRight = entityA.getXBound() - entityB.getX();
+                        double moveUp = entityB.getYBound() - entityA.getY();
+                        double moveDown = entityA.getYBound() - entityB.getY();
 
                         //Create a temp array to sort out values, then sort
                         double[] move = {moveLeft, moveRight, moveUp, moveDown};
@@ -235,78 +307,84 @@ public class GameDriver {
                         }
                         //minimum cases
                         if (minimum == moveLeft) {
-                            entityA.setX(entityA.getX() - minimum);
+                            entityB.setX(entityB.getX() - minimum);
                         } else if (minimum == moveRight) {
-                            entityA.setX(entityA.getX() + minimum);
+                            entityB.setX(entityB.getX() + minimum);
                         } else if (minimum == moveUp) {
-                            entityA.setY(entityA.getY() - minimum); //where - means going up
+                            entityB.setY(entityB.getY() - minimum); //where - means going up
                         } else if (minimum == moveDown) {
-                            entityA.setY(entityA.getY() + minimum); //where + means going down
-                        }
-                    }
-                    else{
-                        if (entityA instanceof Wall && entityB instanceof Tank) {
-                            double moveLeft = entityB.getXBound() - entityA.getX();
-                            double moveRight = entityA.getXBound() - entityB.getX();
-                            double moveUp = entityB.getYBound() - entityA.getY();
-                            double moveDown = entityA.getYBound() - entityB.getY();
-
-                            //Create a temp array to sort out values, then sort
-                            double[] move = {moveLeft, moveRight, moveUp, moveDown};
-                            double minimum = move[0];
-
-                            for (int i = 0; i < move.length; i++) {
-                                if (move[i] < minimum) {
-                                    minimum = move[i];
-                                }
-                            }
-                            //minimum cases
-                            if (minimum == moveLeft) {
-                                entityB.setX(entityB.getX() - minimum);
-                            } else if (minimum == moveRight) {
-                                entityB.setX(entityB.getX() + minimum);
-                            } else if (minimum == moveUp) {
-                                entityB.setY(entityB.getY() - minimum); //where - means going up
-                            } else if (minimum == moveDown) {
-                                entityB.setY(entityB.getY() + minimum); //where + means going down
-                            }
+                            entityB.setY(entityB.getY() + minimum); //where + means going down
                         }
                     }
                 }
             }
-            else if (entityA instanceof Shell && entityB instanceof Wall ||
-                    entityA instanceof Wall && entityB instanceof Shell) {
-                //shell disappears, wall -hp
-                if(areEntitiesColliding(entityA, entityB)){
-                    if(entityA instanceof Shell && entityB instanceof Wall) {
-                        entityA.setLives(0);
+        } else if (entityA instanceof Shell && entityB instanceof Wall ||
+                entityA instanceof Wall && entityB instanceof Shell) {
+            //shell disappears, wall -hp
+            if (areEntitiesColliding(entityA, entityB)) {
+                if (entityA instanceof Shell && entityB instanceof Wall) {
+                    entityA.setLives(0);
+                    gameWorld.removeEntity(entityA.getId());
+                    entityB.setLives(entityB.getLives() - 1);
+                    if (entityB.getLives() == 0) {
                         gameWorld.removeEntity(entityA.getId());
-                        entityB.setLives(entityB.getLives() - 1);
-                        if(entityB.getLives() == 0){
-                            gameWorld.removeEntity(entityA.getId());
-                        }
                     }
-                    else if(entityA instanceof Wall && entityB instanceof Shell){ //entityA = Wall, entityB = Shell
-                        entityA.setLives(entityA.getLives() - 1);
-                        if(entityA.getLives() == 0){
-                            gameWorld.removeEntity(entityA.getId());
-                        }
-                        entityB.setLives(0);
-                        gameWorld.removeEntity(entityB.getId());
+                } else if (entityA instanceof Wall && entityB instanceof Shell) { //entityA = Wall, entityB = Shell
+                    entityA.setLives(entityA.getLives() - 1);
+                    if (entityA.getLives() == 0) {
+                        gameWorld.removeEntity(entityA.getId());
                     }
+                    entityB.setLives(0);
+                    gameWorld.removeEntity(entityB.getId());
                 }
             }
+        }
+        else if (entityA instanceof Tank && entityB instanceof PowerUp) {
+            if(areEntitiesColliding(entityA, entityB) && entityA.getId() == Constants.PLAYER_TANK_ID){
+                gameWorld.removeEntity(entityB.getId());
+                ((Tank)entityA).setShellCooldown(50);
+            }
+        }
+        else if (entityA instanceof Tank && entityB instanceof Heart){
+            if(areEntitiesColliding(entityA, entityB) && entityA.getId() == Constants.PLAYER_TANK_ID){
+                gameWorld.removeEntity(entityB.getId());
+                entityA.setLives(entityA.getLives() + 1);
+            }
+        }
+
 
     }
+
+    private boolean checkWin() {
+        return aiTankGone && movableAiTankGone;
+    }
+
     /**
      * resetGame is called at the end of the game once the gameplay loop exits. This should clear any existing data from
      * the game so that if the game is restarted, there aren't any things leftover from the previous run.
      */
     private void resetGame() {
         // TODO: Implement. reset all the data
+        //reset win/lose conditions
+        aiTankGone = false;
+        movableAiTankGone = false;
+        lostGame = false;
+
+        //reset health
+        playerTank.setLives(3);
+        playerTank.setShellCooldown(100);
+
+        aiTank.setLives(3);
+        movableAiTank.setLives(3);
+
+        //clear lingering entities
+        gameWorld.clearAll();
+
+        //rebuild game
         setUpGame();
         runGameView.reset();
     }
+
     public static void main(String[] args) {
         GameDriver gameDriver = new GameDriver();
         gameDriver.start();

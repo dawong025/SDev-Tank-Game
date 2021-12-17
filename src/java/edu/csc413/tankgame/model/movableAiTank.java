@@ -2,11 +2,12 @@ package edu.csc413.tankgame.model;
 
 import edu.csc413.tankgame.Constants;
 
-public class aiTank extends Tank{ //gameworld AI tank
+public class movableAiTank extends Tank{
     private int shellCooldown;
-    public aiTank (String id, double x, double y, double angle, int lives){
+    protected static int INITIAL_AISHELL_COOLDOWN = 300;
+    public movableAiTank (String id, double x, double y, double angle, int lives){ //will have 2 lives
         super(id, x, y, angle, lives);
-        shellCooldown = INITIAL_SHELL_COOLDOWN;
+        shellCooldown = INITIAL_AISHELL_COOLDOWN;
     }
     @Override
     public void move(GameWorld gameWorld){
@@ -37,6 +38,7 @@ public class aiTank extends Tank{ //gameworld AI tank
         else if(angleDifference > Math.toRadians(3.0)){
             turnLeft(Constants.TANK_TURN_SPEED);
         }
+        moveForward((Constants.TANK_MOVEMENT_SPEED)/6);
         if(shellCooldown > 0) {
             shellCooldown--;
         }
@@ -46,7 +48,7 @@ public class aiTank extends Tank{ //gameworld AI tank
         if(shellCooldown == 0) {
             Shell newShell = new Shell(getShellX(), getShellY(), getAngle(),1);
             gameWorld.addEntity(newShell);
-            shellCooldown = INITIAL_SHELL_COOLDOWN;
+            shellCooldown = INITIAL_AISHELL_COOLDOWN;
         }
     }
 }

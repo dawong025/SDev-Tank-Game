@@ -74,7 +74,11 @@ public class GameWorld {
                 entitiesToRemove.add(entity);
             }
         }
-
+    }
+    public void clearAll(){
+        entitiesToAdd.clear();
+        entitiesToRemove.clear();
+        entities.clear();
     }
     //Keyboard reader -> GameWorld
     public boolean upKeyPressed (){

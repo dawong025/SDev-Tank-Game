@@ -4,9 +4,10 @@ import edu.csc413.tankgame.Constants;
 
 public class playerTank extends Tank{
     protected int playerShellCooldown;
+    protected int initial_shell_cooldown;
     public playerTank(String id, double x, double y, double angle, int lives){
         super(id, x, y, angle, lives);
-        playerShellCooldown = INITIAL_SHELL_COOLDOWN;
+        playerShellCooldown = initial_shell_cooldown;
     }
     @Override
     public void move(GameWorld gameWorld){
@@ -29,11 +30,15 @@ public class playerTank extends Tank{
             fireShell(gameWorld);
         }
     }
-    protected void fireShell(GameWorld gameWorld){
+    public void fireShell(GameWorld gameWorld){
         if (playerShellCooldown == 0) {
             Shell newShell = new Shell(getShellX(), getShellY(), getAngle(),1);
             gameWorld.addEntity(newShell);
-            playerShellCooldown = INITIAL_SHELL_COOLDOWN;
+            playerShellCooldown = initial_shell_cooldown;
         }
+    }
+    @Override
+    public void setShellCooldown (int newCooldown){
+        initial_shell_cooldown = newCooldown;
     }
 }

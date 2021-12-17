@@ -38,4 +38,16 @@ public class Constants {
     public static final double SHELL_X_UPPER_BOUND = 1024.0;
     public static final double SHELL_Y_LOWER_BOUND = -10.0;
     public static final double SHELL_Y_UPPER_BOUND = 768.0;
+
+    public static final double POWERUP_WIDTH = 19.0;
+    public static final double POWERUP_HEIGHT = 18.0;
+    public static final double POWERUP_INITIAL_X = 120.0;
+    public static final double POWERUP_INITIAL_Y = 375.0;
+    public static final double POWERUP_INITIAL_ANGLE = Math.toRadians(180.0);
+
+    public static final double HEART_WIDTH = 43.0;
+    public static final double HEART_HEIGHT = 40.0;
+    public static final double HEART_INITIAL_X = 490.0;
+    public static final double HEART_INITIAL_Y = 100.0;
+    public static final double HEART_INITIAL_ANGLE = Math.toRadians(0);
 }
