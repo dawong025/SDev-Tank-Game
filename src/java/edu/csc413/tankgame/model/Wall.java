@@ -6,21 +6,14 @@ public class Wall extends Entity{
     public Wall (String id, double x, double y, double angle, int lives){
         super(id, x, y, 0.0, lives);
     }
-    /*
-    private static int nextId = 0;
-    private static String generateId(){
-        String id = "wall-" + nextId;
-        nextId++;
-        return id;
-    }
-    */
+
     @Override
     public void move(GameWorld gameWorld){
-        //no movement LOL
+        //No movement
     }
     @Override
     public void checkBounds(GameWorld gameWorld){
-        //no checks needed since no movement
+        //No movement, no checkes needed
     }
 
     @Override

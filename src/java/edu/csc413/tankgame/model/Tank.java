@@ -35,7 +35,6 @@ public abstract class Tank extends Entity {
 
     // You can use getShellX() and getShellY() to determine the x and y coordinates of a Shell that
     // is fired by this tank. The Shell's angle should be the same as the Tank's angle.
-
     protected double getShellX() {
         return getX() + Constants.TANK_WIDTH / 2 + 45.0 * Math.cos(getAngle()) - Constants.SHELL_WIDTH / 2;
     }
@@ -44,7 +43,7 @@ public abstract class Tank extends Entity {
         return getY() + Constants.TANK_HEIGHT / 2 + 45.0 * Math.sin(getAngle()) - Constants.SHELL_HEIGHT / 2;
     }
     public void setShellCooldown (int newCooldown){
-        //for future functionality
+        //for future functionality for possible AI tank shell cooldown manipulation
         //for now functionality is limited to playerTank
     }
 }

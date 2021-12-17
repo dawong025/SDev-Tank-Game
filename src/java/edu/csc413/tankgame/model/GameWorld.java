@@ -12,6 +12,8 @@ public class GameWorld {
     // TODO: Implement. There's a lot of information the GameState will need to store to provide contextual information.
     //       Add whatever instance variables, constructors, and methods are needed.
     private ArrayList<Entity> entities;
+
+    //Entity arrays to deal w/ ConcurrentModificationException
     private ArrayList<Entity> entitiesToAdd;
     private ArrayList<Entity> entitiesToRemove;
 
@@ -38,11 +40,13 @@ public class GameWorld {
         return entitiesToRemove;
     }
 
+    //Add to deal w/ ConcurrentModificationException
     public void moveEntitiesToAdd(){
         entities.addAll(entitiesToAdd);
         entitiesToAdd.clear();
     }
 
+    //Remove version of add to deal w/ ConcurrentModificationException
     public void moveEntitiesToRemove(){
         entities.removeAll(entitiesToRemove);
         entitiesToRemove.clear();
@@ -75,6 +79,7 @@ public class GameWorld {
             }
         }
     }
+    //Clear entities for restart (Buggy)
     public void clearAll(){
         entitiesToAdd.clear();
         entitiesToRemove.clear();

@@ -12,7 +12,7 @@ public class PowerUp extends Entity{
     }
     @Override
     public void checkBounds(GameWorld gameWorld){
-        //no checks needed since no movement
+        //No movement, no checkes needed
     }
     @Override
     public double getXBound(){

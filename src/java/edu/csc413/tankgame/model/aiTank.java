@@ -2,7 +2,8 @@ package edu.csc413.tankgame.model;
 
 import edu.csc413.tankgame.Constants;
 
-public class aiTank extends Tank{ //gameworld AI tank
+//A turret tank that is stationary in movement, can turn and shoot
+public class aiTank extends Tank{
     private int shellCooldown;
     public aiTank (String id, double x, double y, double angle, int lives){
         super(id, x, y, angle, lives);

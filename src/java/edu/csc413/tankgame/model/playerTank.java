@@ -4,10 +4,10 @@ import edu.csc413.tankgame.Constants;
 
 public class playerTank extends Tank{
     protected int playerShellCooldown;
-    protected int initial_shell_cooldown;
+    protected int initial_shell_cooldown = 100; //non-constant for powerup manipulation
     public playerTank(String id, double x, double y, double angle, int lives){
         super(id, x, y, angle, lives);
-        playerShellCooldown = initial_shell_cooldown;
+        playerShellCooldown = 0;
     }
     @Override
     public void move(GameWorld gameWorld){
@@ -23,6 +23,7 @@ public class playerTank extends Tank{
         else if(gameWorld.rightKeyPressed()){
             turnRight(Constants.TANK_TURN_SPEED);
         }
+
         if(playerShellCooldown > 0) {
             playerShellCooldown--;
         }

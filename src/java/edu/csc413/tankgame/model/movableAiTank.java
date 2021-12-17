@@ -38,7 +38,7 @@ public class movableAiTank extends Tank{
         else if(angleDifference > Math.toRadians(3.0)){
             turnLeft(Constants.TANK_TURN_SPEED);
         }
-        moveForward((Constants.TANK_MOVEMENT_SPEED)/6);
+        moveForward((Constants.TANK_MOVEMENT_SPEED)/5);
         if(shellCooldown > 0) {
             shellCooldown--;
         }

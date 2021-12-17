@@ -11,12 +11,14 @@ public class GameDriver {
     private final RunGameView runGameView;
     private final GameWorld gameWorld;
 
+    //Entities
     private Tank playerTank;
     private Tank aiTank;
     private Tank movableAiTank;
     private PowerUp reduceShellTimer;
     private Heart heart;
 
+    //Game Conditions
     private boolean lostGame = false;
     private boolean aiTankGone = false;
     private boolean movableAiTankGone = false;
@@ -182,7 +184,7 @@ public class GameDriver {
         for (Entity entity : gameWorld.getEntities()) {
             runGameView.setSpriteLocationAndAngle(entity.getId(), entity.getX(), entity.getY(), entity.getAngle());
         }
-
+        //Handle Concurrent Modification Exception, similar to add
         for (Entity entity : gameWorld.getEntitiesToRemove()) {
             runGameView.removeSprite(entity.getId());
         }
@@ -202,6 +204,7 @@ public class GameDriver {
     }
 
     private void handleCollision(Entity entityA, Entity entityB) {
+        //Tank vs. Tank
         if (entityA instanceof Tank && entityB instanceof Tank) {
             if (areEntitiesColliding(entityA, entityB)) {
                 //Four Possible Scenarios (In reference to Tank A movement)
@@ -219,7 +222,7 @@ public class GameDriver {
                         minimum = move[i];
                     }
                 }
-                //minimum cases
+                //minimum cases for how the tanks move
                 if (minimum == moveLeft) {
                     entityA.setX(entityA.getX() - minimum / 2);
                     entityB.setX(entityB.getX() + minimum / 2);
@@ -234,25 +237,54 @@ public class GameDriver {
                     entityB.setY(entityB.getY() - minimum / 2);
                 }
             }
-        } else if (entityA instanceof Shell && entityB instanceof Shell) {
+        }
+        //Shell vs. Shell
+        else if (entityA instanceof Shell && entityB instanceof Shell) {
             if (areEntitiesColliding(entityA, entityB)) {
                 //both shells should be removed
                 entityA.setLives(0);
-                gameWorld.removeEntity(entityA.getId());
                 entityB.setLives(0);
+                //Explosions at the base of the tank, not the collision.. :c
+                gameWorld.removeEntity(entityA.getId());
                 gameWorld.removeEntity(entityB.getId());
+                runGameView.addAnimation(
+                        RunGameView.SHELL_EXPLOSION_ANIMATION,
+                        RunGameView.SHELL_EXPLOSION_FRAME_DELAY,
+                        entityA.getX(),
+                        entityA.getY()
+                );
             }
-        } else if (entityA instanceof Tank && entityB instanceof Shell) {
+        }
+        //Tank vs. Shell
+        else if (entityA instanceof Tank && entityB instanceof Shell) {
             if (areEntitiesColliding(entityA, entityB)) {
                 entityA.setLives(entityA.getLives() - 1);
                 if (entityA.getLives() == 0 && entityA.getId() == Constants.PLAYER_TANK_ID) {
                     gameWorld.removeEntity(entityA.getId());
+                    runGameView.addAnimation(
+                            RunGameView.BIG_EXPLOSION_ANIMATION,
+                            RunGameView.BIG_EXPLOSION_FRAME_DELAY,
+                            entityA.getX(),
+                            entityA.getY()
+                    );
                     lostGame = true;
                 } else if (entityA.getLives() == 0 && entityA.getId() == Constants.AI_TANK_1_ID) {
                     gameWorld.removeEntity(entityA.getId());
+                    runGameView.addAnimation(
+                            RunGameView.BIG_EXPLOSION_ANIMATION,
+                            RunGameView.BIG_EXPLOSION_FRAME_DELAY,
+                            entityA.getX(),
+                            entityA.getY()
+                    );
                     aiTankGone = true;
                 } else if (entityA.getLives() == 0 && entityA.getId() == Constants.AI_TANK_2_ID) {
                     gameWorld.removeEntity(entityA.getId());
+                    runGameView.addAnimation(
+                            RunGameView.BIG_EXPLOSION_ANIMATION,
+                            RunGameView.BIG_EXPLOSION_FRAME_DELAY,
+                            entityA.getX(),
+                            entityA.getY()
+                    );
                     movableAiTankGone = true;
                 }
 
@@ -260,9 +292,10 @@ public class GameDriver {
                 gameWorld.removeEntity(entityB.getId()); //get rid of shell
 
             }
-        } else if (entityA instanceof Tank && entityB instanceof Wall ||
+        }
+        //Tank vs. Wall
+        else if (entityA instanceof Tank && entityB instanceof Wall ||
                 entityA instanceof Wall && entityB instanceof Tank) {
-            //second case most likely to happen based on loop order
             if (areEntitiesColliding(entityA, entityB)) {
                 if (entityA instanceof Tank && entityB instanceof Wall) {
                     double moveLeft = entityA.getXBound() - entityB.getX();
@@ -318,7 +351,9 @@ public class GameDriver {
                     }
                 }
             }
-        } else if (entityA instanceof Shell && entityB instanceof Wall ||
+        }
+        //Shell vs. Wall
+        else if (entityA instanceof Shell && entityB instanceof Wall ||
                 entityA instanceof Wall && entityB instanceof Shell) {
             //shell disappears, wall -hp
             if (areEntitiesColliding(entityA, entityB)) {
@@ -333,18 +368,26 @@ public class GameDriver {
                     entityA.setLives(entityA.getLives() - 1);
                     if (entityA.getLives() == 0) {
                         gameWorld.removeEntity(entityA.getId());
+                        runGameView.addAnimation(
+                                RunGameView.BIG_EXPLOSION_ANIMATION,
+                                RunGameView.BIG_EXPLOSION_FRAME_DELAY,
+                                entityA.getX(),
+                                entityA.getY()
+                        );
                     }
                     entityB.setLives(0);
                     gameWorld.removeEntity(entityB.getId());
                 }
             }
         }
+        //Tank vs. Powerup
         else if (entityA instanceof Tank && entityB instanceof PowerUp) {
             if(areEntitiesColliding(entityA, entityB) && entityA.getId() == Constants.PLAYER_TANK_ID){
                 gameWorld.removeEntity(entityB.getId());
                 ((Tank)entityA).setShellCooldown(50);
             }
         }
+        //Tank vs. Heart
         else if (entityA instanceof Tank && entityB instanceof Heart){
             if(areEntitiesColliding(entityA, entityB) && entityA.getId() == Constants.PLAYER_TANK_ID){
                 gameWorld.removeEntity(entityB.getId());
@@ -372,7 +415,7 @@ public class GameDriver {
 
         //reset health
         playerTank.setLives(3);
-        playerTank.setShellCooldown(100);
+        //playerTank.setShellCooldown(100);
 
         aiTank.setLives(3);
         movableAiTank.setLives(3);
