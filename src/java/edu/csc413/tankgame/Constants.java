@@ -50,7 +50,7 @@ public class Constants {
     public static final double HEART_INITIAL_X = 490.0;
     public static final double HEART_INITIAL_Y = 100.0;
     public static final double HEART_INITIAL_ANGLE = Math.toRadians(0);
-    
+
     public static final double HONING_SHELL_WIDTH = 10;
     public static final double HONING_SHELL_HEIGHT = 24;
     public static final double HONING_SHELL_INITIAL_X = 500.0;
