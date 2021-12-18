@@ -3,11 +3,12 @@ package edu.csc413.tankgame.model;
 import edu.csc413.tankgame.Constants;
 
 public class playerTank extends Tank{
-    protected int playerShellCooldown;
-    protected int initial_shell_cooldown = 100; //non-constant for powerup manipulation
+    private int playerShellCooldown;
+    private int initial_shell_cooldown = 100; //non-constant for powerup manipulation
+    private boolean honingSetting = false;
     public playerTank(String id, double x, double y, double angle, int lives){
         super(id, x, y, angle, lives);
-        playerShellCooldown = 0;
+        playerShellCooldown = 25; //set slight early game delay
     }
     @Override
     public void move(GameWorld gameWorld){
@@ -38,6 +39,15 @@ public class playerTank extends Tank{
             playerShellCooldown = initial_shell_cooldown;
         }
     }
+    /*
+    public boolean getHoningSetting(){
+        return honingSetting;
+    }
+
+    public void setHoningSetting(boolean newHoningSetting){
+        honingSetting = newHoningSetting;
+    }
+    */
     @Override
     public void setShellCooldown (int newCooldown){
         initial_shell_cooldown = newCooldown;

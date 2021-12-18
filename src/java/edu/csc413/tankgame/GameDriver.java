@@ -17,6 +17,7 @@ public class GameDriver {
     private Tank movableAiTank;
     private PowerUp reduceShellTimer;
     private Heart heart;
+    //private HoningShell hShell;
 
     //Game Conditions
     private boolean lostGame = false;
@@ -95,7 +96,7 @@ public class GameDriver {
                 Constants.AI_TANK_2_INITIAL_ANGLE,
                 2
         );
-        reduceShellTimer = new PowerUp(
+        reduceShellTimer = new ShellSpeed(
                 "red-shell-timer",
                 Constants.POWERUP_INITIAL_X,
                 Constants.POWERUP_INITIAL_Y,
@@ -109,6 +110,15 @@ public class GameDriver {
                 Constants.HEART_INITIAL_ANGLE,
                 0
         );
+        /*
+        hShell = new HoningShell(
+                "honing-shell",
+                Constants.HONING_SHELL_INITIAL_X,
+                Constants.HONING_SHELL_INITIAL_Y,
+                Constants.HONING_SHELL_INITIAL_ANGLE,
+                0
+        );
+         */
 
         int id = 0;
         List<WallInformation> wallInfos = WallInformation.readWalls();
@@ -126,6 +136,7 @@ public class GameDriver {
         gameWorld.addEntity(movableAiTank);
         gameWorld.addEntity(reduceShellTimer);
         gameWorld.addEntity(heart);
+        //gameWorld.addEntity(hShell);
         //for all wallInformation
         gameWorld.moveEntitiesToAdd();
 
@@ -154,6 +165,14 @@ public class GameDriver {
                 heart.getX(),
                 heart.getY(),
                 heart.getAngle());
+        /*
+        runGameView.addSprite(hShell.getId(),
+                RunGameView.HONING_SHELL_IMAGE_FILE,
+                hShell.getX(),
+                hShell.getY(),
+                hShell.getAngle());
+
+         */
     }
 
     /**
@@ -340,8 +359,8 @@ public class GameDriver {
                 gameWorld.removeEntity(entityB.getId());
             }
         }
-        //Tank vs. Powerup
-        else if (entityA instanceof Tank && entityB instanceof PowerUp) {
+        //Tank vs. ShellSpeed
+        else if (entityA instanceof Tank && entityB instanceof ShellSpeed) {
             if (areEntitiesColliding(entityA, entityB) && entityA.getId() == Constants.PLAYER_TANK_ID) {
                 gameWorld.removeEntity(entityB.getId());
                 ((Tank) entityA).setShellCooldown(50);
@@ -354,6 +373,15 @@ public class GameDriver {
                 entityA.setLives(entityA.getLives() + 1);
             }
         }
+        //Tank vs. HoningShell: For Future implementation
+        /*
+        else if(entityA instanceof Tank && entityB instanceof HoningShell){ //currently does nothing
+            if(areEntitiesColliding(entityA, entityB) && entityA.getId() == Constants.PLAYER_TANK_ID){
+                gameWorld.removeEntity(entityB.getId());
+                //((playerTank)entityA).setHoningSetting(true);
+            }
+        }
+         */
     }
 
     private boolean checkWin() {
@@ -373,16 +401,14 @@ public class GameDriver {
 
         //reset health
         playerTank.setLives(3);
-        //playerTank.setShellCooldown(100);
-
+        playerTank.setShellCooldown(100);
         aiTank.setLives(3);
-        movableAiTank.setLives(3);
+        movableAiTank.setLives(2);
 
         //clear lingering entities
         gameWorld.clearAll();
 
         //rebuild game
-        setUpGame();
         runGameView.reset();
     }
 

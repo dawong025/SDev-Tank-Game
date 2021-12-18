@@ -85,6 +85,7 @@ public class GameWorld {
         entitiesToRemove.clear();
         entities.clear();
     }
+
     //Keyboard reader -> GameWorld
     public boolean upKeyPressed (){
         return keyboardReader.upPressed();
