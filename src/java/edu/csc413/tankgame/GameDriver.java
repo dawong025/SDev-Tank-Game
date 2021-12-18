@@ -294,108 +294,66 @@ public class GameDriver {
             }
         }
         //Tank vs. Wall
-        else if (entityA instanceof Tank && entityB instanceof Wall ||
-                entityA instanceof Wall && entityB instanceof Tank) {
+        else if (entityA instanceof Wall && entityB instanceof Tank) {
             if (areEntitiesColliding(entityA, entityB)) {
-                if (entityA instanceof Tank && entityB instanceof Wall) {
-                    double moveLeft = entityA.getXBound() - entityB.getX();
-                    double moveRight = entityB.getXBound() - entityA.getX();
-                    double moveUp = entityA.getYBound() - entityB.getY();
-                    double moveDown = entityB.getYBound() - entityA.getY();
+                double moveLeft = entityB.getXBound() - entityA.getX();
+                double moveRight = entityA.getXBound() - entityB.getX();
+                double moveUp = entityB.getYBound() - entityA.getY();
+                double moveDown = entityA.getYBound() - entityB.getY();
 
-                    //Create a temp array to sort out values, then sort
-                    double[] move = {moveLeft, moveRight, moveUp, moveDown};
-                    double minimum = move[0];
+                //Create a temp array to sort out values, then sort
+                double[] move = {moveLeft, moveRight, moveUp, moveDown};
+                double minimum = move[0];
 
-                    for (int i = 0; i < move.length; i++) {
-                        if (move[i] < minimum) {
-                            minimum = move[i];
-                        }
+                for (int i = 0; i < move.length; i++) {
+                    if (move[i] < minimum) {
+                        minimum = move[i];
                     }
-                    //minimum cases
-                    if (minimum == moveLeft) {
-                        entityA.setX(entityA.getX() - minimum);
-                    } else if (minimum == moveRight) {
-                        entityA.setX(entityA.getX() + minimum);
-                    } else if (minimum == moveUp) {
-                        entityA.setY(entityA.getY() - minimum); //where - means going up
-                    } else if (minimum == moveDown) {
-                        entityA.setY(entityA.getY() + minimum); //where + means going down
-                    }
-                } else {
-                    if (entityA instanceof Wall && entityB instanceof Tank) {
-                        double moveLeft = entityB.getXBound() - entityA.getX();
-                        double moveRight = entityA.getXBound() - entityB.getX();
-                        double moveUp = entityB.getYBound() - entityA.getY();
-                        double moveDown = entityA.getYBound() - entityB.getY();
-
-                        //Create a temp array to sort out values, then sort
-                        double[] move = {moveLeft, moveRight, moveUp, moveDown};
-                        double minimum = move[0];
-
-                        for (int i = 0; i < move.length; i++) {
-                            if (move[i] < minimum) {
-                                minimum = move[i];
-                            }
-                        }
-                        //minimum cases
-                        if (minimum == moveLeft) {
-                            entityB.setX(entityB.getX() - minimum);
-                        } else if (minimum == moveRight) {
-                            entityB.setX(entityB.getX() + minimum);
-                        } else if (minimum == moveUp) {
-                            entityB.setY(entityB.getY() - minimum); //where - means going up
-                        } else if (minimum == moveDown) {
-                            entityB.setY(entityB.getY() + minimum); //where + means going down
-                        }
-                    }
+                }
+                //minimum cases
+                if (minimum == moveLeft) {
+                    entityB.setX(entityB.getX() - minimum);
+                } else if (minimum == moveRight) {
+                    entityB.setX(entityB.getX() + minimum);
+                } else if (minimum == moveUp) {
+                    entityB.setY(entityB.getY() - minimum); //where - means going up
+                } else if (minimum == moveDown) {
+                    entityB.setY(entityB.getY() + minimum); //where + means going down
                 }
             }
         }
         //Shell vs. Wall
-        else if (entityA instanceof Shell && entityB instanceof Wall ||
-                entityA instanceof Wall && entityB instanceof Shell) {
+        else if (entityA instanceof Wall && entityB instanceof Shell) {
             //shell disappears, wall -hp
             if (areEntitiesColliding(entityA, entityB)) {
-                if (entityA instanceof Shell && entityB instanceof Wall) {
-                    entityA.setLives(0);
+                entityA.setLives(entityA.getLives() - 1);
+                if (entityA.getLives() == 0) {
                     gameWorld.removeEntity(entityA.getId());
-                    entityB.setLives(entityB.getLives() - 1);
-                    if (entityB.getLives() == 0) {
-                        gameWorld.removeEntity(entityA.getId());
-                    }
-                } else if (entityA instanceof Wall && entityB instanceof Shell) { //entityA = Wall, entityB = Shell
-                    entityA.setLives(entityA.getLives() - 1);
-                    if (entityA.getLives() == 0) {
-                        gameWorld.removeEntity(entityA.getId());
-                        runGameView.addAnimation(
-                                RunGameView.BIG_EXPLOSION_ANIMATION,
-                                RunGameView.BIG_EXPLOSION_FRAME_DELAY,
-                                entityA.getX(),
-                                entityA.getY()
-                        );
-                    }
-                    entityB.setLives(0);
-                    gameWorld.removeEntity(entityB.getId());
+                    runGameView.addAnimation(
+                            RunGameView.BIG_EXPLOSION_ANIMATION,
+                            RunGameView.BIG_EXPLOSION_FRAME_DELAY,
+                            entityA.getX(),
+                            entityA.getY()
+                    );
                 }
+                entityB.setLives(0);
+                gameWorld.removeEntity(entityB.getId());
             }
         }
         //Tank vs. Powerup
         else if (entityA instanceof Tank && entityB instanceof PowerUp) {
-            if(areEntitiesColliding(entityA, entityB) && entityA.getId() == Constants.PLAYER_TANK_ID){
+            if (areEntitiesColliding(entityA, entityB) && entityA.getId() == Constants.PLAYER_TANK_ID) {
                 gameWorld.removeEntity(entityB.getId());
-                ((Tank)entityA).setShellCooldown(50);
+                ((Tank) entityA).setShellCooldown(50);
             }
         }
         //Tank vs. Heart
-        else if (entityA instanceof Tank && entityB instanceof Heart){
-            if(areEntitiesColliding(entityA, entityB) && entityA.getId() == Constants.PLAYER_TANK_ID){
+        else if (entityA instanceof Tank && entityB instanceof Heart) {
+            if (areEntitiesColliding(entityA, entityB) && entityA.getId() == Constants.PLAYER_TANK_ID) {
                 gameWorld.removeEntity(entityB.getId());
                 entityA.setLives(entityA.getLives() + 1);
             }
         }
-
-
     }
 
     private boolean checkWin() {
@@ -432,5 +390,4 @@ public class GameDriver {
         GameDriver gameDriver = new GameDriver();
         gameDriver.start();
     }
-
 }
